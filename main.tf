@@ -38,7 +38,13 @@ module "vpc_peering" {
   module_enabled   = true
   accepter_vpc_id  = "${module.shared_vpc.vpc_id}"
   requester_vpc_id = "${module.lab_vpc.vpc_id}"
-  module_depends_on = ["${module.lab_vpc.public_route_table}", "${module.shared_vpc.private_route_table}"]
+
+  module_depends_on = [
+    "${module.lab_vpc.public_route_table}",
+    "${module.lab_vpc.private_route_table}",
+    "${module.shared_vpc.public_route_table}",
+    "${module.shared_vpc.private_route_table}",
+  ]
 }
 
 resource "aws_security_group" "app" {
@@ -117,7 +123,6 @@ resource "aws_db_instance" "this" {
 #   password = "${random_string.better_way.result}"
 # }
 
-
 data "aws_ami" "this" {
   provider    = "aws.lab_vpc"
   most_recent = true
@@ -129,7 +134,7 @@ data "aws_ami" "this" {
   }
 
   filter {
-    name = "architecture"
+    name   = "architecture"
     values = ["x86_64"]
   }
 }

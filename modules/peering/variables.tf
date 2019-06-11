@@ -28,6 +28,6 @@ variable "requester_vpc_id" {
 
 variable "module_depends_on" {
   description = "Emulation of depends_on for modules"
-  type = "list"
-  default = []
+  type        = "list"
+  default     = []
 }

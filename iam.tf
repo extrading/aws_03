@@ -14,6 +14,7 @@ resource "aws_iam_role" "this" {
 
 data "aws_iam_policy_document" "assume_role_policy" {
   provider = "aws.lab_vpc"
+
   statement {
     actions = ["sts:AssumeRole"]
 
