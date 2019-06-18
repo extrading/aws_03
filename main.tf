@@ -1,11 +1,11 @@
 provider "aws" {
   alias  = "lab_vpc"
-  region = "eu-central-1"
+  region = "${var.aws_lab_region}"
 }
 
 provider "aws" {
   alias  = "shared_vpc"
-  region = "eu-central-1"
+  region = "${var.aws_shared_region}"
 }
 
 module "shared_vpc" {
@@ -36,15 +36,10 @@ module "vpc_peering" {
 
   source           = "./modules/peering/"
   module_enabled   = true
-  accepter_vpc_id  = "${module.shared_vpc.vpc_id}"
   requester_vpc_id = "${module.lab_vpc.vpc_id}"
-
-  module_depends_on = [
-    "${module.lab_vpc.public_route_table}",
-    "${module.lab_vpc.private_route_table}",
-    "${module.shared_vpc.public_route_table}",
-    "${module.shared_vpc.private_route_table}",
-  ]
+  requester_rts    = "${concat(module.lab_vpc.public_route_table, module.lab_vpc.private_route_table)}"
+  accepter_vpc_id  = "${module.shared_vpc.vpc_id}"
+  accepter_rts     = "${concat(module.shared_vpc.public_route_table, module.shared_vpc.private_route_table)}"
 }
 
 resource "aws_security_group" "app" {
@@ -75,11 +70,11 @@ resource "aws_security_group" "db" {
   vpc_id      = "${module.shared_vpc.vpc_id}"
 
   ingress {
-    description     = "Application accessing ports of MYSQL/Aurora"
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.app.id}"]
+    description = "Application accessing ports of MYSQL/Aurora"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["${module.lab_vpc.cidr_block}"]
   }
 
   egress {

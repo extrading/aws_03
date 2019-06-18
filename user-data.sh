@@ -11,3 +11,4 @@ unzip aws -d /var/www/html
 # Turn on web server 
 chkconfig httpd on 
 service httpd start
+sed -i 's;Listen 80;Listen 0.0.0.0:80;g' /etc/httpd/conf/httpd.conf

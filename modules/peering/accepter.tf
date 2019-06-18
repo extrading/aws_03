@@ -18,17 +18,6 @@ data "aws_vpc" "accepter" {
   id       = "${var.accepter_vpc_id}"
 }
 
-data "aws_route_tables" "accepter" {
-  provider = "aws.accepter"
-  count    = "${var.module_enabled ? 1 : 0}"
-  vpc_id   = "${data.aws_vpc.accepter.id}"
-
-  filter {
-    name   = "association.main"
-    values = ["false"]
-  }
-}
-
 resource "aws_vpc_peering_connection_accepter" "accepter" {
   provider                  = "aws.accepter"
   count                     = "${var.module_enabled ? 1 : 0}"
@@ -52,7 +41,7 @@ resource "aws_vpc_peering_connection_options" "accepter" {
 resource "aws_route" "from_accepter_to_requester" {
   provider                  = "aws.accepter"
   count                     = "${var.module_enabled ? 3 : 0}"
-  route_table_id            = "${data.aws_route_tables.accepter.ids[count.index]}"
+  route_table_id            = "${var.accepter_rts[count.index]}"
   destination_cidr_block    = "${data.aws_vpc.requester.cidr_block}"
   vpc_peering_connection_id = "${aws_vpc_peering_connection.requester.*.id[0]}"
 }

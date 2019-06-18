@@ -26,8 +26,12 @@ variable "requester_vpc_id" {
   description = "VPC ID of requester vpc."
 }
 
-variable "module_depends_on" {
-  description = "Emulation of depends_on for modules"
-  type        = "list"
-  default     = []
+variable "requester_rts" {
+  type    = "list"
+  default = []
+}
+
+variable "accepter_rts" {
+  type    = "list"
+  default = []
 }
